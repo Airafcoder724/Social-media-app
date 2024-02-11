@@ -25,11 +25,11 @@ const SignUpForm = () => {
   const {toast} = useToast();
 
   const navigate = useNavigate();
-  const {checkAuthUser , isLoading : isUserLoading } = useUserContext();
+  const {checkAuthUser  } = useUserContext();
 
   const {mutateAsync:createUserAccount , isPending:isCreatingUser} = useCreateAccount();
 
-  const {mutateAsync:signInAccount , isPending:isSigningIn } = useSignInAccount();
+  const {mutateAsync:signInAccount  } = useSignInAccount();
 
   const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
