@@ -36,14 +36,14 @@ const PostCard = ({ post }: postCardProps) => {
                             {multiFormatDateString(post.$createdAt)}
                             </p>
                             -
-                            <p className="subtle-semibold lg:small-regular">
+                            <p className="subtle-semibold lg:small-regular ">
                                 {post.location}
                             </p>
                         </div>
                     </div>
                 </div>
-                <Link to={`/update-post/${post.$id}`} className={`${user.id !== post.creator.$id} && "hidden" `}>
-                    <img src="/assets/icons/edit.svg" width={20} height={20} alt="edit" />
+                <Link to={`/update-post/${post.$id}`}  className={`${user.id !== post.creator.$id && "hidden"}`}>
+                    <img src="/assets/icons/edit.svg"  width={20} height={20} alt="edit" />
                 </Link>
             </div>
             <Link to={`/posts/${post.$id}`}>
