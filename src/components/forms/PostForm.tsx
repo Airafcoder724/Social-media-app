@@ -69,7 +69,6 @@ const PostForm = ({post , action} :postFormProps) => {
             ...values,
             userId : user.id
        })
-       console.log(newPost)
        if(!newPost){
         return toast({
             title:'Something is Wrong ,Try again'

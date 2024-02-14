@@ -1,4 +1,4 @@
-import { INewPost, INewUser, IUpdatePost } from "@/types";
+import { INewPost, INewUser, IUpdatePost, IUpdateUser } from "@/types";
 import {  ID, Query } from "appwrite";
 import { account, appwriteConfig, avatars, database, storage } from "./config";
 
@@ -28,9 +28,8 @@ export async function createUserAccount(user: INewUser) {
       console.log(error);
       return error;
     }
-  }
-  
-  
+}
+   
 
 export async function saveUserToDB(user:{
     accountId:string,
@@ -197,6 +196,19 @@ export async function getRecentPosts(){
     return posts
 }
 
+export async function getUsers(){
+  const users = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      [Query.orderAsc('$createdAt') , Query.limit(5)]
+  )
+
+  if(!users){
+      throw Error
+  }
+
+  return users;
+}
 
 export async function likedPost(postId:string , likesArray:string[]) {
     try {
@@ -374,5 +386,82 @@ export async function searchPosts(searchTerm:string) {
     return posts
   } catch (error) {
     console.log(error)
+  }
+}
+
+
+export async function getUserById(id:string){
+  try {
+
+    const user = await database.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      id,
+    )
+
+    if(!user)throw Error;
+
+    return user
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateUser(user : IUpdateUser){
+  const hasFiletoUpdate = user.file.length>0;
+
+  try {
+    let image ={
+      imageUrl:user.imageUrl,
+      imageId:user.imageId
+    }  
+
+    if(hasFiletoUpdate){
+      const uploadedFile = await uploadFile(user.file[0]);
+      if(!uploadedFile)  throw Error;
+
+      const fileUrl = getFilePreview(uploadedFile.$id);
+      if (!fileUrl) {
+        await deleteFile(uploadedFile.$id);
+        throw Error;
+      }
+
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    }
+
+     //  Update user
+
+     const updateUser = await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      user.userId,
+      {
+        name:user.name,
+        bio:user.bio,
+        imageId:image.imageId,
+        imageUrl:image.imageUrl
+      }
+     );
+
+      // Failed to update
+
+      if(!updateUser){
+        if(hasFiletoUpdate){
+          await deleteFile(image.imageId);
+        }
+
+        throw Error;
+      } 
+        // Safely delete old file after successful update
+    if (user.imageId && hasFiletoUpdate) {
+      await deleteFile(user.imageId);
+    }
+
+    return updateUser;
+
+    
+  } catch (error) {
+    console.log(error);
   }
 }

@@ -18,7 +18,6 @@ const GridPostList = ({
   
   
 
-console.log(posts[0]?.creator?.name ?? 'Creator name not available');
 
   return (
     <ul className="grid-container">
